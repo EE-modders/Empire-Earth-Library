@@ -8,7 +8,7 @@ namespace eelib {
 		class ProgramLoadedEvent : Event
 		{
 		public:
-			ProgramLoadedEvent(void);
+			ProgramLoadedEvent();
 			
 		private:
 			int test;

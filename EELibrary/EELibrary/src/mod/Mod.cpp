@@ -3,13 +3,13 @@
 
 using namespace eelib::mod;
 
-Mod::Mod(char* name)
+Mod::Mod(const char* name)
 {
 	m_Implementation = new ModPimpl();
 	m_Implementation->_name = name;
 }
 
-Mod::~Mod(void)
+Mod::~Mod()
 {
 	delete m_Implementation;
 }
@@ -39,7 +39,7 @@ void Mod::SetVersion(const Version& version)
 	_version = version;
 }
 
-void Mod::SetVersion(const int major, const int minor, const int patch)
+void Mod::SetVersion(int major, int minor, int patch)
 {
 	_version = Version(major, minor, patch);
 }
@@ -49,14 +49,24 @@ void Mod::SetVersion(const char* version)
 	_version = Version(version);
 }
 
-bool Mod::IsEnabled() const
+bool Mod::IsRunning() const
 {
-	return _enabled;
+	return _running;
 }
 
-void Mod::SetEnabled(bool enabled)
+bool Mod::IsInitialized() const
 {
-	_enabled = enabled;
+	return _initialized;
+}
+
+void Mod::SetRunning(bool running)
+{
+	_running = running;
+}
+
+void Mod::SetInitialized(bool initialized)
+{
+	_initialized = initialized;
 }
 
 eelib::events::EventManager& Mod::GetEvent()

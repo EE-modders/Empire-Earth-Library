@@ -1,11 +1,12 @@
 #pragma once
 
 #include "pch.h"
-#include "EELibrary.h"
+#include "EELibraryExports.h"
 #include "mod/Mod.h"
 #include <thread>
 
-namespace eelib {
+namespace eelib
+{
 	namespace mod
 	{
 		
@@ -13,8 +14,8 @@ namespace eelib {
 		{
 		public:
 			typedef std::map<std::wstring, Mod*> ModMap;
-			typedef std::map<std::wstring, HMODULE > LibraryMap;
-			typedef std::map<std::wstring, std::thread> ThreadMap;
+			typedef std::map<std::wstring, HMODULE> LibraryMap;
+			typedef std::map<std::wstring, HANDLE> ThreadMap;
 			
 			ModMap m_Mods;
 			LibraryMap m_Libs;
@@ -24,23 +25,20 @@ namespace eelib {
 		class EELIBRARY_API ModManager
 		{
 		public:
-			typedef Mod* (*fnCreateMod)(void);
-			typedef void (*fnDestroyMod)(void);
-			
-			static ModManager& Instance();
+			ModManager();
+            virtual ~ModManager();
 
 			Mod* LoadMod(const wchar_t* modPath);
+			void UnloadMod(Mod* plugin);
+			void UnloadAllMods();
+
 			bool IsModLoaded(const wchar_t* modPath) const;
-			void UnloadMod(Mod*& plugin);
 
 			void InitMod(Mod* mod);
 			void StartMod(Mod* mod);
 			void StopMod(Mod* mod);
 
 		private:
-			ModManager(void);
-			~ModManager(void);
-
 			ModManagerPimpl* _modManagerPimpl;
 		};
 

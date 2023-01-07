@@ -1,65 +1,120 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "pch.h"
-#include "Memory.h"
+#include "EELibrary.h"
 #include <MinHook.h>
+#include <iostream>
+#include <dinput.h>
+
+#pragma comment(lib, "../Low-Level Engine.lib")
 
 bool bRun = true;
 HANDLE hThread = NULL;
-LPVOID EEMain_original;
 
-
-// Create ThreadLoop
-DWORD WINAPI ThreadLoop(LPVOID memory)
+BOOL Detach(BOOL processTerminationAsked)
 {
-	//eelib::memory::Memory* mem = static_cast<eelib::memory::Memory*>(memory);
-	MessageBox(NULL, L"Hello World!", L"Hello World!", MB_OK);
+	bRun = false;
+
+	// Only wait for the thread to exit if we terminated the process ourselves
+	// Because when lpReserved != NULL, the DLL is being unloaded due to a process termination
+	// And at that point, the thread is already dead because... Windows ?
+	if (!processTerminationAsked && hThread != NULL)
+	{
+		if (WaitForSingleObject(hThread, 4242) == WAIT_TIMEOUT)
+			TerminateThread(hThread, 0); // too bad
+		CloseHandle(hThread);
+	}
+
+	if (processTerminationAsked && instance != nullptr)
+	{
+		instance->Exit();
+		instance.reset();
+	}
+
+#ifdef _DEBUG
+	if (GetConsoleWindow() != NULL)
+		FreeConsole();
+#endif
+	return TRUE;
+}
+
+DWORD CALLBACK ThreadLoop(LPVOID memory)
+{
 	while (bRun)
 	{
-		Sleep(1000); // Keep thread alive
+		instance->Run();
+		Sleep(1000);
 	}
-	MessageBox(NULL, L"ThreadLoop has ended", L"ThreadLoop", MB_OK);
 	return 0;
 }
 
-void __fastcall GameMain(int regecx)
+LINK_HOOK(void, Game_Start, int regecx)
 {
-	hThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ThreadLoop, NULL, NULL, NULL);
+	hThread = CreateThread(NULL, NULL, ThreadLoop, NULL, NULL, NULL);
+	instance->GetMemory()->Game_StartOrg(regecx);
+}
 
-	// dxm do that, idk why it seems to be a manual trampoline
-	// maybe he didn't used minhook back then and still have that trampoline active :V ?
-	/*__asm
+LINK_HOOK(void, LLE_UShutdown, bool coUninitialize, bool exit)
+{
+	Detach(FALSE);
+	instance->Exit();
+	instance->GetMemory()->LLE_UShutdownOrg(coUninitialize, exit);
+	instance.reset();
+	// maybe interesting? _CrtDumpMemoryLeaks();
+}
+
+// At 005c142d
+// The game compare
+// CMP byte ptr [EBP + -0x1],0x0
+// A valid campain is loaded if the value is 0x1
+// And the game initialize the value to 0x0
+// So we just need to set the value to 0x1 before the comparison
+// and the game will think the campain is valid!
+LPVOID CampainValidityCheckOrg = nullptr;
+
+void __declspec(naked) CampainValidityCheckHookFn()
+{
+	__asm
 	{
-		MOV ECX, regecx
-		CALL EEMain_original
-	}*/
+		mov byte ptr[ebp - 0x1], 0x1
+		jmp[CampainValidityCheckOrg]
+	}
 }
 
-bool Detach()
+BOOL Attach(HMODULE hModule)
 {
-	bRun = false;
-	MH_Uninitialize();
-	if (WaitForSingleObject(hThread, 4242) == WAIT_TIMEOUT)
-		TerminateThread(hThread, 0);
-	if (hThread != NULL)
-		CloseHandle(hThread);
-	return true;
-}
+	DisableThreadLibraryCalls(hModule);
 
-HMODULE g_hinst;
-HMODULE g_Self;
+	if (instance != nullptr)
+		return FALSE;
 
-int LockLibraryIntoProcessMem(HMODULE dllHandle, HMODULE* localDllHandle)
-{
-	if (localDllHandle == NULL)
-		return ERROR_INVALID_PARAMETER;
-	*localDllHandle = NULL;
-	TCHAR DllPath[MAX_PATH];
-	if (GetModuleFileName(dllHandle, DllPath, MAX_PATH) == NULL)
-		return GetLastError();
-	*localDllHandle = LoadLibrary(DllPath);
-	if (*localDllHandle == NULL)
-		return GetLastError();
-	return ERROR_SUCCESS;
+#ifdef _DEBUG
+	if (!GetConsoleWindow())
+		AllocConsole();
+	freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
+#endif
+	
+	try
+	{
+		instance = std::make_unique<eelib::EELibrary>();
+		instance->Init(hModule);
+
+		if (!instance->RegisterMainHook(Game_StartHookFn))
+			throw std::exception("Failed to register main hook");
+		if (!instance->RegisterMainEndHook(LLE_UShutdownHookFn))
+			throw std::exception("Failed to register dll unload hook");
+
+		auto CampainValidityCheckAddr = (LPVOID)(0x001c142d + instance->GetMemory()->gameAddress);
+
+		if (instance->GetMemory()->HookFunction(CampainValidityCheckAddr, CampainValidityCheckHookFn, &CampainValidityCheckOrg) != EELIBRARY_OK)
+			throw std::exception("Failed to hook CampainValidityCheckAddr");
+	}
+	catch (const std::exception& e)
+	{
+		// Show topmost message box with error message
+		MessageBoxA(NULL, e.what(), "EE Library", MB_ICONERROR | MB_TOPMOST);
+		return FALSE;
+	}
+	return TRUE;
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
@@ -68,31 +123,24 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
 		case DLL_PROCESS_ATTACH:
 		{
-			g_hinst = hModule;
-			Sleep(5000);
-			try
-			{
-				LockLibraryIntoProcessMem(hModule, &g_Self);
-				eelib::memory::Memory mem;
-				if (mem.Initialize() == eelib::memory::Unknown)
-					return FALSE;
-				if (mem.HookFunction(mem.mainHook, &GameMain, &EEMain_original) != EELIBRARY_OK)
-					return FALSE;
-			}
-			catch (...)
-			{
-				MessageBox(NULL, L"Exception", L"Exception", MB_OK);
-				return FALSE;
-			}
+#ifdef _DEBUG
+			// wait for debugger to attach
+			while (!IsDebuggerPresent())
+				Sleep(100);
+#endif // _DEBUG
+			Attach(hModule);
 			break;
 		}
 		case DLL_THREAD_ATTACH:
 		case DLL_THREAD_DETACH:
+			break;
 		case DLL_PROCESS_DETACH:
 		{
+			Detach(lpReserved != nullptr);
 			break;
 		}
+        default:
+            break;
     }
     return TRUE;
 }
-

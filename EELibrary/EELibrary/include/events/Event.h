@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EELibrary.h"
+#include "EELibraryExports.h"
 
 namespace eelib {
 	namespace events
@@ -15,8 +15,8 @@ namespace eelib {
 		{
 		public:
 			// virtual event class for all events
-			Event(const char* name);
-			virtual ~Event(void);
+			explicit Event(const char* name);
+            virtual ~Event();
 
 			bool operator==(const Event& event) const;
 			bool operator!=(const Event& event) const;			

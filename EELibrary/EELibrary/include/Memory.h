@@ -1,6 +1,18 @@
 #pragma once
 
-#include "EELibrary.h"
+#include "EELibraryExports.h"
+
+
+#define DEFINE_HOOK(fnReturnType, fnCallType, fnName, ...) \
+	typedef fnReturnType(fnCallType fnName##Hook)(__VA_ARGS__); \
+	fnName##Hook fnName##Org = NULL; \
+    LPVOID fnName##Addr = NULL; \
+
+#define REGISTER_HOOK_ADDR(fnName, addr) \
+	fnName##Addr = (LPVOID)(addr); \
+
+#define LINK_HOOK(fnReturnType, fnName, ...) \
+	fnReturnType fnName##HookFn(__VA_ARGS__)
 
 namespace eelib
 {
@@ -8,17 +20,23 @@ namespace eelib
 	{
 		enum GameType
 		{
-			Unknown, EE, AoC
+			EE, AoC
 		};
+
 		
-		class EELIBRARY_API Memory
+		class Memory
 		{
 		public:
-			GameType Initialize();
+			Memory() = default;
+            virtual ~Memory() = default;
+
+			void Initialize();
 			void Uninitialize();
 			
-			int HookFunction(LPVOID hookAddress, LPVOID hookFunction, LPVOID* originalFunction = NULL);
-			int UnhookFunction(LPVOID hookAddress);
+			int HookFunction(LPVOID orgAddress, LPVOID hookFn, LPVOID* orgFn = nullptr);
+			int UnhookFunction(LPVOID orgAddress);
+
+			bool IsExecutableAddress(LPVOID pAddress);
 
 		private:
 			void InitializeEE();
@@ -30,13 +48,20 @@ namespace eelib
 			DWORD lleAddress;
 
 		// Public addresses
+		// BIN_AnyName (+Addr for address, +Fn for function)
 		public:
-			LPVOID mainHook;
-			LPVOID mainHookOrg;
+			DEFINE_HOOK(void, __fastcall*, Game_Start, int regecx)
+			DEFINE_HOOK(void, __cdecl*, LLE_UShutdown, bool coUninitialize, bool exit)
+			
 		
 		// Private addresses
 		private:
 			CONST DWORD clientCodeAddress = 0x00001000;
+
+		// Constants
+		private:
+			CONST BYTE clientCodeEE = 0xE8;
+			CONST BYTE clientCodeAoC = 0x55;
 
 		private:
 			GameType _gameType;

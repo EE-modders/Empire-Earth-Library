@@ -13,8 +13,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{b95d9bc6-d37a-4bae-9d54-1d4664ccf211}</ProjectGuid>
-    <RootNamespace>EELibrary</RootNamespace>
+    <ProjectGuid>{9e1f33fb-038d-4b97-91d4-2c7a2ec82c89}</ProjectGuid>
+    <RootNamespace>ModTemplate</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -47,19 +47,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;EELIBRARY_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MODTEMPLATE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)lib\MinHook\include;$(ProjectDir)lib\DX7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)EELibrary\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(ProjectDir)lib\DX7\lib\ddraw.lib;$(ProjectDir)lib\DX7\lib\dxguid.lib;$(ProjectDir)lib\MinHook\lib\libMinHook-x86-v141-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -68,14 +67,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;EELIBRARY_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MODTEMPLATE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)lib\MinHook\include;$(ProjectDir)lib\DX7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)EELibrary\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -83,40 +81,21 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(ProjectDir)lib\DX7\lib\ddraw.lib;$(ProjectDir)lib\DX7\lib\dxguid.lib;$(ProjectDir)lib\MinHook\lib\libMinHook-x86-v141-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\events\EventManager.h" />
-    <ClInclude Include="include\events\Event.h" />
-    <ClInclude Include="include\EELibrary.h" />
-    <ClInclude Include="include\exceptions\CoreException.h" />
-    <ClInclude Include="include\exceptions\core\CoreInitException.h" />
-    <ClInclude Include="include\EELibraryExports.h" />
-    <ClInclude Include="include\framework.h" />
-    <ClInclude Include="include\gui_tests.h" />
-    <ClInclude Include="include\pch.h" />
-    <ClInclude Include="include\mod\Version.h" />
-    <ClInclude Include="include\events\ProgramLoadedEvent.h" />
-    <ClInclude Include="include\mod\Mod.h" />
-    <ClInclude Include="include\mod\ModManager.h" />
-    <ClInclude Include="include\Memory.h" />
-    <ClInclude Include="include\Utils.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="ModExports.h" />
+    <ClInclude Include="ModTemplate.h" />
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Memory.cpp" />
-    <ClCompile Include="src\mod\ModManager.cpp" />
-    <ClCompile Include="src\mod\Mod.cpp" />
-    <ClCompile Include="src\events\EventManager.cpp" />
-    <ClCompile Include="src\events\ProgramLoadedEvent.cpp" />
-    <ClCompile Include="src\events\Event.cpp" />
-    <ClCompile Include="src\EELibrary.cpp" />
-    <ClCompile Include="src\dllmain.cpp" />
-    <ClCompile Include="src\pch.cpp">
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="ModTemplate.cpp" />
+    <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\mod\Version.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

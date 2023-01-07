@@ -9,7 +9,7 @@ Event::Event(const char* name)
 	_eventPimpl->name = name;
 }
 
-Event::~Event(void)
+Event::~Event()
 {
 	delete _eventPimpl;
 }

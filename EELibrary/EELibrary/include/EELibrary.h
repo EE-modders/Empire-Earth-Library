@@ -1,11 +1,40 @@
 #pragma once
 
-#ifdef EELIBRARY_EXPORTS
-#define EELIBRARY_API __declspec(dllexport)
-#else
-#define EELIBRARY_API __declspec(dllimport)
-#endif
+#include <atomic>
+#include <functional>
+#include "Memory.h"
+#include "mod/ModManager.h"
 
-#define EELIBRARY_OK 0
-#define EELIBRARY_ERROR 1
+namespace eelib
+{	
+	class EELibrary
+	{
+	public:
+		EELibrary();
+        virtual ~EELibrary();
+		
+		BOOL RegisterMainHook(LPVOID pHook);
+		BOOL RegisterMainEndHook(LPVOID pHook);
 
+		HMODULE GetSelf() const { return _hself; }
+		HMODULE GetHandle() const { return _hinst; }
+
+		BOOL Init(HMODULE hModule);
+		void Run();
+		void Exit();
+		
+		std::unique_ptr<memory::Memory>& GetMemory();
+		std::unique_ptr<mod::ModManager>& GetModManager();
+		
+	private:
+		std::unique_ptr<memory::Memory> _memory;
+
+		std::unique_ptr<mod::ModManager> _modManager;
+		const wchar_t* _modPath = L"mods";
+		
+		HMODULE _hinst;
+		HMODULE _hself;
+	};
+}
+
+static std::unique_ptr<eelib::EELibrary> instance;

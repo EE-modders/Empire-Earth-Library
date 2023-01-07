@@ -3,7 +3,7 @@
 
 using namespace eelib::mod;
 
-Version::Version(void)
+Version::Version()
 {
 	_major = 0;
 	_minor = 0;
@@ -22,14 +22,14 @@ Version::Version(const Version& version)
 	_patch = version._patch;
 }
 
-Version::Version(const int major, const int minor, const int patch)
+Version::Version(int major, int minor, int patch)
 {
 	_major = major;
 	_minor = minor;
 	_patch = patch;
 }
 
-Version::~Version(void)
+Version::~Version()
 {
 }
 
@@ -87,24 +87,24 @@ void Version::SetVersion(const char* version)
 	SetVersion(major, minor, patch);
 }
 
-void Version::SetVersion(const int major, const int minor, const int patch)
+void Version::SetVersion(int major, int minor, int patch)
 {
 	_major = major;
 	_minor = minor;
 	_patch = patch;
 }
 
-void Version::SetMajor(const int major)
+void Version::SetMajor(int major)
 {
 	_major = major;
 }
 
-void Version::SetMinor(const int minor)
+void Version::SetMinor(int minor)
 {
 	_minor = minor;
 }
 
-void Version::SetPatch(const int patch)
+void Version::SetPatch(int patch)
 {
 	_patch = patch;
 }

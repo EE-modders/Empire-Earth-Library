@@ -11,9 +11,9 @@ namespace eelib {
 		class EELIBRARY_API EventManager
 		{
 		public:
-			EventManager(void);
-			~EventManager(void);
-		
+			EventManager();
+            virtual ~EventManager();
+
 			typedef void (*EventCallback)(Event* event);
 			
 			void RegisterEventCallback(const Event& event, EventCallback callback);
@@ -25,7 +25,7 @@ namespace eelib {
 		private:
 			EventManagerPimpl* _eventCallbackPimpl;
 		};
-		
+
 		class EventManagerPimpl
 		{
 		public:
