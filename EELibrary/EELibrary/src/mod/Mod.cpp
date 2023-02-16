@@ -19,7 +19,7 @@ const char* Mod::GetName() const
 	return m_Implementation->_name.c_str();
 }
 
-const wchar_t* Mod::GetPath() const
+const char* Mod::GetPath() const
 {
 	return m_Implementation->_path.c_str();
 }
@@ -29,7 +29,7 @@ const Version& Mod::GetVersion() const
 	return _version;
 }
 
-void Mod::SetPath(const wchar_t* path)
+void Mod::SetPath(const char* path)
 {
 	m_Implementation->_path = path;
 }

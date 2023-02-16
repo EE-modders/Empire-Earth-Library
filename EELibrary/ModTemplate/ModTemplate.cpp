@@ -21,8 +21,6 @@ bool MOD_NAME::OnStart()
 	return true;
 }
 
-#include <iostream>
-
 bool MOD_NAME::OnUpdate()
 {
 	while (IsRunning())

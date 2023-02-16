@@ -51,7 +51,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)lib\MinHook\include;$(ProjectDir)lib\DX7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)lib\MinHook\include;$(ProjectDir)lib\DX7\include;$(ProjectDir)lib\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -72,7 +72,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)lib\MinHook\include;$(ProjectDir)lib\DX7\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(ProjectDir)lib\MinHook\include;$(ProjectDir)lib\DX7\include;$(ProjectDir)lib\spdlog\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <WholeProgramOptimization>false</WholeProgramOptimization>
@@ -93,6 +93,9 @@
     <ClInclude Include="include\exceptions\CoreException.h" />
     <ClInclude Include="include\exceptions\core\CoreInitException.h" />
     <ClInclude Include="include\EELibraryExports.h" />
+    <ClInclude Include="include\exceptions\ModException.h" />
+    <ClInclude Include="include\exceptions\ModManagerException.h" />
+    <ClInclude Include="include\exceptions\mod\ModInitException.h" />
     <ClInclude Include="include\framework.h" />
     <ClInclude Include="include\gui_tests.h" />
     <ClInclude Include="include\pch.h" />
@@ -102,8 +105,10 @@
     <ClInclude Include="include\mod\ModManager.h" />
     <ClInclude Include="include\Memory.h" />
     <ClInclude Include="include\Utils.h" />
+    <ClInclude Include="include\Logger.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\Memory.cpp" />
     <ClCompile Include="src\mod\ModManager.cpp" />
     <ClCompile Include="src\mod\Mod.cpp" />

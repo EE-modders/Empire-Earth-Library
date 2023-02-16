@@ -3,6 +3,7 @@
 #include <atomic>
 #include <functional>
 #include "Memory.h"
+#include "Logger.h"
 #include "mod/ModManager.h"
 
 namespace eelib
@@ -19,7 +20,7 @@ namespace eelib
 		HMODULE GetSelf() const { return _hself; }
 		HMODULE GetHandle() const { return _hinst; }
 
-		BOOL Init(HMODULE hModule);
+		void Init(HMODULE hModule);
 		void Run();
 		void Exit();
 		
@@ -30,7 +31,7 @@ namespace eelib
 		std::unique_ptr<memory::Memory> _memory;
 
 		std::unique_ptr<mod::ModManager> _modManager;
-		const wchar_t* _modPath = L"mods";
+		const wchar_t* _modPath = L"Mods";
 		
 		HMODULE _hinst;
 		HMODULE _hself;

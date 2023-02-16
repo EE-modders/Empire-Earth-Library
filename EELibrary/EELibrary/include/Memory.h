@@ -2,14 +2,13 @@
 
 #include "EELibraryExports.h"
 
-
 #define DEFINE_HOOK(fnReturnType, fnCallType, fnName, ...) \
 	typedef fnReturnType(fnCallType fnName##Hook)(__VA_ARGS__); \
 	fnName##Hook fnName##Org = NULL; \
     LPVOID fnName##Addr = NULL; \
 
 #define REGISTER_HOOK_ADDR(fnName, addr) \
-	fnName##Addr = (LPVOID)(addr); \
+	fnName##Addr = reinterpret_cast<LPVOID>(addr); \
 
 #define LINK_HOOK(fnReturnType, fnName, ...) \
 	fnReturnType fnName##HookFn(__VA_ARGS__)
@@ -35,6 +34,9 @@ namespace eelib
 			
 			int HookFunction(LPVOID orgAddress, LPVOID hookFn, LPVOID* orgFn = nullptr);
 			int UnhookFunction(LPVOID orgAddress);
+			
+			// [[deprecated("Use HookFunction instead")]]
+			int HookFunctionByApi(LPCWSTR pszModule, LPCSTR pszProcName, LPVOID pDetour, LPVOID* ppOriginal);
 
 			bool IsExecutableAddress(LPVOID pAddress);
 
@@ -44,13 +46,16 @@ namespace eelib
 			
 		// Module Addresses
 		public:
-			DWORD gameAddress;
-			DWORD lleAddress;
+			DWORD moduleGameAddress;
+			DWORD moduleLLEAddress;
+			DWORD moduleTCPProtoAddress;
+			DWORD moduleDX7DispAddress;
+			DWORD moduleDX7TnLDispAddress;
 
 		// Public addresses
-		// BIN_AnyName (+Addr for address, +Fn for function)
+		// MODULE_AnyName (+Addr for address, +Fn for function)
 		public:
-			DEFINE_HOOK(void, __fastcall*, Game_Start, int regecx)
+			DEFINE_HOOK(void, __fastcall*, Game_Start)
 			DEFINE_HOOK(void, __cdecl*, LLE_UShutdown, bool coUninitialize, bool exit)
 			
 		
@@ -60,8 +65,8 @@ namespace eelib
 
 		// Constants
 		private:
-			CONST BYTE clientCodeEE = 0xE8;
-			CONST BYTE clientCodeAoC = 0x55;
+			CONST BYTE _clientCodeEE = 0xE8;
+			CONST BYTE _clientCodeAoC = 0x55;
 
 		private:
 			GameType _gameType;

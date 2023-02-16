@@ -7,8 +7,8 @@ namespace eelib
     class CoreInitException : public CoreException
     {
     public:
-        CoreInitException(std::string msg, Logger::Level level = Logger::CRITICAL)
-			: CoreException(msg, level) {}
+        CoreInitException(const char* msg)
+			: CoreException(msg) {}
         virtual ~CoreInitException() override = default;
     };
 }

@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "mod/ModManager.h"
+#include <exceptions/ModManagerException.h>
+#include <Logger.h>
 
 using namespace eelib::mod;
 
@@ -13,60 +15,60 @@ ModManager::~ModManager()
     delete _modManagerPimpl;
 }
 
-Mod* ModManager::LoadMod(const wchar_t* modPath)
+Mod* ModManager::LoadMod(const std::string& modPath)
 {
     Mod* mod = nullptr;
-
     auto iter = _modManagerPimpl->m_Mods.find(modPath);
-    char* modPathChar = new char[wcslen(modPath) + 1];
-	wcstombs_s(NULL, modPathChar, wcslen(modPath) + 1, modPath, wcslen(modPath) + 1);
 
     if (iter != _modManagerPimpl->m_Mods.end())
-        throw std::exception(("Mod " + std::string(modPathChar) + " already loaded").c_str());
-    // or we could return mod = iter->second;
+        throw ModManagerException(("Mod " + modPath + " already loaded").c_str());
 
-    HMODULE hModule = LoadLibraryW(modPath);
+    Logger::Trace("Loading mod {} 1/6...", modPath);
+    HMODULE hModule = LoadLibraryA(modPath.c_str());
     if (hModule == NULL)
-        throw std::exception(("Could not load library " + std::string(modPathChar)).c_str());
+        throw ModManagerException(("Could not load library " + modPath).c_str());
 
+    Logger::Trace("Loading mod {} 2/6...", modPath);
 	eelib::mod::Mod::fnGetLibraryVersion GetLibVersion = (eelib::mod::Mod::fnGetLibraryVersion)GetProcAddress(hModule, "GetLibraryVersion");
     if (GetLibVersion == NULL)
     {
 		FreeLibrary(hModule);
-		throw std::exception(("Could not find GetLibraryVersion in " + std::string(modPathChar)).c_str());
+		throw ModManagerException(("Could not find GetLibraryVersion in " + modPath).c_str());
     }
-
     int modApiVersion = GetLibVersion();
 
+    Logger::Trace("Loading mod {} 3/6...", modPath);
     if (modApiVersion < EELIBRARY_LAST_COMPATIBLE_VERSION)
     {
 		FreeLibrary(hModule);
-		throw std::exception(("Mod " + std::string(modPathChar) + " is not compatible with this version of EE Library").c_str());
+		throw ModManagerException(("Mod " + modPath + " is not compatible with this version of EE Library").c_str());
     }
-    
+
+    Logger::Trace("Loading mod {} 4/6...", modPath);
     eelib::mod::Mod::fnCreateMod CreateMod = (eelib::mod::Mod::fnCreateMod)GetProcAddress(hModule, "CreateMod");
     if (CreateMod == NULL)
     {
         FreeLibrary(hModule);
-        throw std::exception(("Could not find symbol \"CreateMod\" in " + std::string(modPathChar)).c_str());
+        throw ModManagerException(("Could not find symbol \"CreateMod\" in " + modPath).c_str());
     }
-
     mod = CreateMod();
 
+    Logger::Trace("Loading mod {} 5/6...", modPath);
     if (mod == nullptr)
     {
         FreeLibrary(hModule);
-        throw std::exception(("Could not load mod from " + std::string(modPathChar)).c_str());
+        throw ModManagerException(("Could not load mod from " + modPath).c_str());
     }
-    mod->SetPath(modPath);
+    mod->SetPath(modPath.c_str());
 	mod->SetInitialized(false);
     mod->SetRunning(false);
+    Logger::Trace("Loading mod {} 6/6...", modPath);
     _modManagerPimpl->m_Mods.insert(ModManagerPimpl::ModMap::value_type(modPath, mod));
 	_modManagerPimpl->m_Libs.insert(ModManagerPimpl::LibraryMap::value_type(modPath, std::move(hModule)));
     return mod;
 }
 
-bool ModManager::IsModLoaded(const wchar_t* modName) const
+bool ModManager::IsModLoaded(const char* modName) const
 {
     auto iter = _modManagerPimpl->m_Mods.find(modName);
     return iter != _modManagerPimpl->m_Mods.end();
@@ -75,11 +77,11 @@ bool ModManager::IsModLoaded(const wchar_t* modName) const
 void ModManager::UnloadMod(Mod* mod)
 {
     if (mod == nullptr)
-        throw std::exception("Mod is NULL");
+        throw ModManagerException("Mod is NULL");
 
     auto iter = _modManagerPimpl->m_Libs.find(mod->GetPath());
     if (iter == _modManagerPimpl->m_Libs.end())
-        throw std::exception("Trying to unload mod that is already unloaded or has never been loaded.");
+        throw ModManagerException("Trying to unload mod that is already unloaded or has never been loaded.");
 
     if (mod->IsRunning())
         StopMod(mod);
@@ -89,7 +91,7 @@ void ModManager::UnloadMod(Mod* mod)
     HMODULE hModule = iter->second;
     mod::Mod::fnDestroyMod DestroyMod = (mod::Mod::fnDestroyMod)GetProcAddress(hModule, "DestroyMod");
     if (DestroyMod == NULL)
-        throw std::exception("Unable to find symbol \"DestroyMod\" in library");
+        throw ModManagerException("Unable to find symbol \"DestroyMod\" in library");
 	DestroyMod();
     FreeLibrary(hModule);
     _modManagerPimpl->m_Libs.erase(iter);
@@ -111,26 +113,26 @@ void ModManager::UnloadAllMods()
 void ModManager::InitMod(Mod* mod)
 {
     if (mod == nullptr)
-        throw std::exception("Mod is NULL");
+        throw ModManagerException("Mod is NULL");
 	if (!IsModLoaded(mod->GetPath()))
-		throw std::exception("Mod is not loaded");
+		throw ModManagerException("Mod is not loaded");
 	if (mod->IsInitialized())
-		throw std::exception("Mod is already initialized");
+		throw ModManagerException("Mod is already initialized");
 	mod->SetInitialized(mod->OnStart());
 }
 
 void ModManager::StartMod(Mod* mod)
 {
     if (mod == nullptr)
-        throw std::exception("Mod is NULL");
+        throw ModManagerException("Mod is NULL");
 	if (!IsModLoaded(mod->GetPath()))
-		throw std::exception("Mod is not loaded");
+		throw ModManagerException("Mod is not loaded");
 	if (!mod->IsInitialized())
-		throw std::exception("Mod is not initialized");
+		throw ModManagerException("Mod is not initialized");
     
     auto iter = _modManagerPimpl->m_Threads.find(mod->GetPath());
     if (iter != _modManagerPimpl->m_Threads.end())
-        throw std::exception("Mod already started");
+        throw ModManagerException("Mod already started");
 
     // don't work for some reasons: std::thread thread = std::thread(&Mod::OnStart, mod);
 	// let's use CreateThread instead...
@@ -139,7 +141,7 @@ void ModManager::StartMod(Mod* mod)
 	{
 		Mod* mod = reinterpret_cast<Mod*>(lpParameter);
 		if (mod == NULL)
-			throw std::exception("Mod cast failed in thread start routine");
+			throw ModManagerException("Mod cast failed in thread start routine");
         mod->SetRunning(true);
         mod->OnUpdate();
         mod->SetRunning(false);
@@ -147,7 +149,7 @@ void ModManager::StartMod(Mod* mod)
 	};
 	HANDLE hThread = CreateThread(NULL, 0, threadStartRoutine, mod, 0, NULL);
 	if (hThread == NULL)
-		throw std::exception("Could not create thread");
+		throw ModManagerException("Could not create thread");
 	SetThreadPriority(hThread, THREAD_PRIORITY_BELOW_NORMAL);
     _modManagerPimpl->m_Threads.insert(ModManagerPimpl::ThreadMap::value_type(mod->GetPath(), hThread));
 }
@@ -155,17 +157,17 @@ void ModManager::StartMod(Mod* mod)
 void ModManager::StopMod(Mod* mod)
 {
     if (mod == nullptr)
-        throw std::exception("Mod is NULL");
+        throw ModManagerException("Mod is NULL");
 	if (!mod->IsInitialized())
-		throw std::exception("Mod is not initialized");
+		throw ModManagerException("Mod is not initialized");
 	if (!mod->IsRunning())
-		throw std::exception("Mod is already stopped");
+		throw ModManagerException("Mod is already stopped");
     auto iter = _modManagerPimpl->m_Threads.find(mod->GetPath());
     if (iter == _modManagerPimpl->m_Threads.end())
-        throw std::exception("Mod not started");
+        throw ModManagerException("Mod not started");
 	HANDLE hThread = iter->second;
 	if (hThread == NULL)
-		throw std::exception("Mod thread is NULL");
+		throw ModManagerException("Mod thread is NULL");
 
     mod->SetRunning(false);
     if (WaitForSingleObject(hThread, 4242) == WAIT_TIMEOUT)
@@ -174,7 +176,7 @@ void ModManager::StopMod(Mod* mod)
 	hThread = NULL;
 
     if (!mod->OnStop())
-        throw std::exception("Mod failed to disable");
+        throw ModManagerException("Mod failed to disable");
     
 	_modManagerPimpl->m_Threads.erase(iter);
 }

@@ -6,14 +6,21 @@ using namespace eelib::memory;
 
 void Memory::Initialize()
 {
-	gameAddress = (DWORD) GetModuleHandle(NULL);
-	lleAddress = (DWORD) GetModuleHandle(L"Low-Level Engine");
+	moduleGameAddress = (DWORD) GetModuleHandle(NULL);
+	moduleLLEAddress = (DWORD) GetModuleHandle(L"Low-Level Engine");
+	moduleTCPProtoAddress = (DWORD) GetModuleHandle(L"TCP Protocol"); // don't work
 
-	if (gameAddress == NULL || lleAddress == NULL)
-		throw std::exception("Failed to get Game or LLE module handle");
+	if (moduleGameAddress == NULL || moduleLLEAddress == NULL /*|| moduleTCPProtoAddress == NULL*/)
+		throw std::exception("Failed to get mandatory module addresses");
 
-	BYTE clientCode = *(BYTE*) (gameAddress + clientCodeAddress);
-	if (clientCode != clientCodeEE && clientCode != clientCodeAoC)
+	moduleDX7DispAddress = (DWORD)GetModuleHandle(L"DX7HRDisplay");
+	moduleDX7TnLDispAddress = (DWORD)GetModuleHandle(L"DX7HRTnLDisplay");
+
+	if (moduleDX7DispAddress == NULL && moduleDX7TnLDispAddress == NULL)
+		throw std::exception("Failed to get at least one of the display modules");
+	
+	BYTE clientCode = *(BYTE*) (moduleGameAddress + clientCodeAddress);
+	if (clientCode != _clientCodeEE && clientCode != _clientCodeAoC)
 		throw std::exception("Failed to determine game type");
 
 	if (MH_Initialize() != MH_OK)
@@ -23,6 +30,7 @@ void Memory::Initialize()
 		InitializeEE();
 	else if (clientCode == 0x55)
 		InitializeAoC();
+	
 }
 
 void Memory::Uninitialize()
@@ -34,8 +42,8 @@ void Memory::Uninitialize()
 void Memory::InitializeEE()
 {
 	_gameType = EE;
-	REGISTER_HOOK_ADDR(Game_Start, gameAddress + 0x0013BD15)
-	REGISTER_HOOK_ADDR(LLE_UShutdown, lleAddress + 0x00080634)
+	REGISTER_HOOK_ADDR(Game_Start, moduleGameAddress + 0x001360ca) // 0x002603c4
+	REGISTER_HOOK_ADDR(LLE_UShutdown, moduleLLEAddress + 0x00080634)
 }
 
 void Memory::InitializeAoC()
@@ -48,6 +56,7 @@ int Memory::HookFunction(LPVOID orgAddress, LPVOID hookFn, LPVOID* orgFn)
 {
 	DWORD oldProtect;
 	bool isExecutable = IsExecutableAddress(orgAddress);
+
 	if (!isExecutable) // If the address is not executable, we need to make it so
 		VirtualProtect(orgAddress, 5, PAGE_EXECUTE_READWRITE, &oldProtect);
 	if (MH_CreateHook(orgAddress, hookFn, orgFn) != MH_OK)
@@ -66,10 +75,23 @@ int Memory::UnhookFunction(LPVOID orgAddress)
 	return EELIBRARY_OK;
 }
 
+int Memory::HookFunctionByApi(LPCWSTR pszModule, LPCSTR pszProcName, LPVOID pDetour, LPVOID* ppOriginal)
+{
+	MH_STATUS status;
+	status = MH_CreateHookApi(pszModule, pszProcName, pDetour, ppOriginal);
+	if (status != MH_OK)
+		return EELIBRARY_ERROR;
+	status = MH_EnableHook(MH_ALL_HOOKS);
+	if (status != MH_OK)
+		return EELIBRARY_ERROR;
+	return EELIBRARY_OK;
+}
+
 bool Memory::IsExecutableAddress(LPVOID pAddress)
 {
 	DWORD flags = PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY;
 	MEMORY_BASIC_INFORMATION mi;
+
 	VirtualQuery(pAddress, &mi, sizeof(mi));
 
 	return (mi.State == MEM_COMMIT && (mi.Protect & flags));

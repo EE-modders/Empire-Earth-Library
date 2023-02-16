@@ -5,9 +5,11 @@ using namespace eelib::mod;
 
 Version::Version()
 {
-	_major = 0;
-	_minor = 0;
-	_patch = 0;
+	SetVersion(0, 0, 0);
+}
+
+Version::~Version()
+{
 }
 
 Version::Version(const char* version)
@@ -17,27 +19,17 @@ Version::Version(const char* version)
 
 Version::Version(const Version& version)
 {
-	_major = version._major;
-	_minor = version._minor;
-	_patch = version._patch;
+	SetVersion(version._major, version._minor, version._patch);
 }
 
 Version::Version(int major, int minor, int patch)
 {
-	_major = major;
-	_minor = minor;
-	_patch = patch;
-}
-
-Version::~Version()
-{
+	SetVersion(major, minor, patch);
 }
 
 Version& Version::operator=(const Version& version)
 {
-	_major = version._major;
-	_minor = version._minor;
-	_patch = version._patch;
+	SetVersion(version._major, version._minor, version._patch);
 	return *this;
 }
 
@@ -75,9 +67,7 @@ bool Version::operator!=(const Version& version) const
 
 const char* Version::GetString() const
 {
-	char* version = new char[32];
-	sprintf_s(version, 32, "%d.%d.%d", _major, _minor, _patch);
-	return version;
+	return _versionStr;
 }
 
 void Version::SetVersion(const char* version)
@@ -92,21 +82,22 @@ void Version::SetVersion(int major, int minor, int patch)
 	_major = major;
 	_minor = minor;
 	_patch = patch;
+	sprintf_s(_versionStr, 16, "%d.%d.%d", _major, _minor, _patch);
 }
 
 void Version::SetMajor(int major)
 {
-	_major = major;
+	SetVersion(major, _minor, _patch);
 }
 
 void Version::SetMinor(int minor)
 {
-	_minor = minor;
+	SetVersion(_major, minor, _patch);
 }
 
 void Version::SetPatch(int patch)
 {
-	_patch = patch;
+	SetVersion(_major, _minor, patch);
 }
 
 int Version::GetMajor() const

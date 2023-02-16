@@ -38,6 +38,7 @@ namespace eelib {
 			int _major;
 			int _minor;
 			int _patch;
+			char _versionStr[16];
 		};
 	}
 }

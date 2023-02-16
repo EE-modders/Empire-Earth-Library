@@ -5,7 +5,7 @@
 #include <iostream>
 #include <dinput.h>
 
-#pragma comment(lib, "../Low-Level Engine.lib")
+//#pragma comment(lib, "../Low-Level Engine.lib")
 
 bool bRun = true;
 HANDLE hThread = NULL;
@@ -29,11 +29,6 @@ BOOL Detach(BOOL processTerminationAsked)
 		instance->Exit();
 		instance.reset();
 	}
-
-#ifdef _DEBUG
-	if (GetConsoleWindow() != NULL)
-		FreeConsole();
-#endif
 	return TRUE;
 }
 
@@ -47,10 +42,10 @@ DWORD CALLBACK ThreadLoop(LPVOID memory)
 	return 0;
 }
 
-LINK_HOOK(void, Game_Start, int regecx)
+LINK_HOOK(void, Game_Start)
 {
 	hThread = CreateThread(NULL, NULL, ThreadLoop, NULL, NULL, NULL);
-	instance->GetMemory()->Game_StartOrg(regecx);
+	instance->GetMemory()->Game_StartOrg();
 }
 
 LINK_HOOK(void, LLE_UShutdown, bool coUninitialize, bool exit)
@@ -80,21 +75,22 @@ void __declspec(naked) CampainValidityCheckHookFn()
 	}
 }
 
+/*
+auto CampainValidityCheckAddr = (LPVOID)(0x001c142d + instance->GetMemory()->moduleGameAddress);
+
+if (instance->GetMemory()->HookFunction(CampainValidityCheckAddr, CampainValidityCheckHookFn, &CampainValidityCheckOrg) != EELIBRARY_OK)
+	throw std::exception("Failed to hook CampainValidityCheckAddr");
+*/
+
 BOOL Attach(HMODULE hModule)
 {
 	DisableThreadLibraryCalls(hModule);
 
 	if (instance != nullptr)
 		return FALSE;
-
-#ifdef _DEBUG
-	if (!GetConsoleWindow())
-		AllocConsole();
-	freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
-#endif
 	
 	try
-	{
+	{		
 		instance = std::make_unique<eelib::EELibrary>();
 		instance->Init(hModule);
 
@@ -103,15 +99,12 @@ BOOL Attach(HMODULE hModule)
 		if (!instance->RegisterMainEndHook(LLE_UShutdownHookFn))
 			throw std::exception("Failed to register dll unload hook");
 
-		auto CampainValidityCheckAddr = (LPVOID)(0x001c142d + instance->GetMemory()->gameAddress);
-
-		if (instance->GetMemory()->HookFunction(CampainValidityCheckAddr, CampainValidityCheckHookFn, &CampainValidityCheckOrg) != EELIBRARY_OK)
-			throw std::exception("Failed to hook CampainValidityCheckAddr");
 	}
 	catch (const std::exception& e)
 	{
 		// Show topmost message box with error message
 		MessageBoxA(NULL, e.what(), "EE Library", MB_ICONERROR | MB_TOPMOST);
+		instance.reset();
 		return FALSE;
 	}
 	return TRUE;
@@ -125,7 +118,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		{
 #ifdef _DEBUG
 			// wait for debugger to attach
-			while (!IsDebuggerPresent())
+			while (!IsDebuggerPresent() && !GetAsyncKeyState(VK_F5))
 				Sleep(100);
 #endif // _DEBUG
 			Attach(hModule);

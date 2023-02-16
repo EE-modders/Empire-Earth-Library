@@ -14,7 +14,7 @@ namespace eelib
 		class ModPimpl
 		{
 		public:
-			std::wstring _path;
+			std::string _path;
 			std::string _name;
 		};
 
@@ -22,10 +22,10 @@ namespace eelib
 		{
 		public:
 			explicit Mod(const char* name);
-            virtual ~Mod(void);
+			virtual ~Mod(void);
 
 			const char* GetName() const;
-			const wchar_t* GetPath() const;
+			const char* GetPath() const;
 			const Version& GetVersion() const;
 			bool IsRunning() const;
 			bool IsInitialized() const;
@@ -35,13 +35,13 @@ namespace eelib
 			typedef int (*fnGetLibraryVersion)(void);
 			typedef Mod* (*fnCreateMod)(void);
 			typedef void (*fnDestroyMod)(void);
-			
+
 			/*
 				Called when the mod is starting up.
 				This call block the game thread.
 				This is the place to initialize your mod.
 				Don't do any heavy work here!
-				
+
 				Return:
 				1: Success, mod is initialized.
 					OnUpdate() will be called.
@@ -70,9 +70,18 @@ namespace eelib
 			*/
 			virtual bool OnStop() = 0;
 
+			// --- Events ---
+		public:
+			
+			struct OnGameStart
+			{
+			};
+			virtual void OnGameStart() {}
+			
+
 		protected:
 			friend class ModManager; // Allow ModManager to access to protected methods
-			void SetPath(const wchar_t* name);
+			void SetPath(const char* name);
 			void SetVersion(const Version& version);
 			void SetVersion(int major, int minor, int patch);
 			void SetVersion(const char* version);
@@ -80,7 +89,7 @@ namespace eelib
 			void SetInitialized(bool initialized);
 
 		private:
-			ModPimpl* m_Implementation;
+			ModPimpl* m_Implementation = new ModPimpl();
 			bool _running = false;
 			bool _initialized = false;
 			Version _version;
@@ -88,4 +97,3 @@ namespace eelib
 		};
 	}
 }
-

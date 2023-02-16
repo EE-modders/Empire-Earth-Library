@@ -13,9 +13,9 @@ namespace eelib
 		class ModManagerPimpl
 		{
 		public:
-			typedef std::map<std::wstring, Mod*> ModMap;
-			typedef std::map<std::wstring, HMODULE> LibraryMap;
-			typedef std::map<std::wstring, HANDLE> ThreadMap;
+			typedef std::map<std::string, Mod*> ModMap;
+			typedef std::map<std::string, HMODULE> LibraryMap;
+			typedef std::map<std::string, HANDLE> ThreadMap;
 			
 			ModMap m_Mods;
 			LibraryMap m_Libs;
@@ -28,11 +28,11 @@ namespace eelib
 			ModManager();
             virtual ~ModManager();
 
-			Mod* LoadMod(const wchar_t* modPath);
+			Mod* LoadMod(const std::string& modPath);
 			void UnloadMod(Mod* plugin);
 			void UnloadAllMods();
 
-			bool IsModLoaded(const wchar_t* modPath) const;
+			bool IsModLoaded(const char* modPath) const;
 
 			void InitMod(Mod* mod);
 			void StartMod(Mod* mod);
