@@ -74,10 +74,15 @@ bool ModManager::IsModLoaded(const char* modName) const
     return iter != _modManagerPimpl->m_Mods.end();
 }
 
+static auto globalShit = eelib::events::ProgramLoadedEvent("EE", "Path :D");
+
 void ModManager::UnloadMod(Mod* mod)
 {
     if (mod == nullptr)
         throw ModManagerException("Mod is NULL");
+
+    mod->OnProgramLoaded.sendEvent<eelib::events::ProgramLoadedEvent>(globalShit);
+    Sleep(2000);
 
     auto iter = _modManagerPimpl->m_Libs.find(mod->GetPath());
     if (iter == _modManagerPimpl->m_Libs.end())

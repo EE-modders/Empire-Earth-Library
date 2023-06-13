@@ -5,26 +5,23 @@
 namespace eelib {
 	namespace events
 	{
-		class EventPimpl
-		{
-		public:
-			std::string name;
-		};
+		class EventHandler;
 
 		class EELIBRARY_API Event
 		{
 		public:
-			// virtual event class for all events
-			explicit Event(const char* name);
-            virtual ~Event();
+			virtual ~Event() = default;
 
-			bool operator==(const Event& event) const;
-			bool operator!=(const Event& event) const;			
-			
-			const char* GetName() const;
+		public:
+			EventHandler* getSender() const
+			{
+				return m_EventHandler;
+			}
 
 		private:
-			EventPimpl* _eventPimpl;
+			EventHandler* m_EventHandler = nullptr;
+
+			friend class EventHandler;
 		};
 	}
 }

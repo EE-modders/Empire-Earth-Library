@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "ModTemplate.h"
+#include <iostream>
 
 MOD_NAME::MOD_NAME(void) : eelib::mod::Mod(MOD_NAME_STRING)
 {
@@ -10,14 +11,24 @@ MOD_NAME::~MOD_NAME(void)
 {
 }
 
-//EVENT_HANDLER(ProgramLoaded)
-//printf("Program loaded: %s, %s\n", eventData.language, eventData.isAdmin ? "true" : "false");
-//}
+class EventListenerExample : public eelib::events::EventListener<eelib::events::ProgramLoadedEvent>
+{
+public:
+	virtual void onScoppedEvent(eelib::events::ProgramLoadedEvent& event) override
+	{
+		std::cout << "Program loaded: " << event.GetProgramName() << " (" << event.GetProgramPath() << ")" << std::endl;
+		event.SetProgramName("TEST");
+		event.SetProgramPath("DUMMY");
+		std::cout << "Program loaded: " << event.GetProgramName() << " (" << event.GetProgramPath() << ")" << std::endl;
+	}
+};
 
 bool MOD_NAME::OnStart()
 {
 	/*std::cout << "ModTemplate::OnInit()" << std::endl;
 	GetEvent().RegisterHandler(ModEvent::ProgramLoadedEvent, OnProgramLoadedEvent);*/
+	auto test = new EventListenerExample();
+	OnProgramLoaded.registerListener<eelib::events::ProgramLoadedEvent>(test);
 	return true;
 }
 

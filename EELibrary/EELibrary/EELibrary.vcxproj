@@ -87,9 +87,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\events\EventManager.h" />
+    <ClInclude Include="include\events\EventHandler.h" />
+    <ClInclude Include="include\events\EventID.h" />
     <ClInclude Include="include\events\Event.h" />
     <ClInclude Include="include\EELibrary.h" />
+    <ClInclude Include="include\events\IEventListener.h" />
     <ClInclude Include="include\exceptions\CoreException.h" />
     <ClInclude Include="include\exceptions\core\CoreInitException.h" />
     <ClInclude Include="include\EELibraryExports.h" />
@@ -112,9 +114,6 @@
     <ClCompile Include="src\Memory.cpp" />
     <ClCompile Include="src\mod\ModManager.cpp" />
     <ClCompile Include="src\mod\Mod.cpp" />
-    <ClCompile Include="src\events\EventManager.cpp" />
-    <ClCompile Include="src\events\ProgramLoadedEvent.cpp" />
-    <ClCompile Include="src\events\Event.cpp" />
     <ClCompile Include="src\EELibrary.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\pch.cpp">

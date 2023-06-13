@@ -69,7 +69,3 @@ void Mod::SetInitialized(bool initialized)
 	_initialized = initialized;
 }
 
-eelib::events::EventManager& Mod::GetEvent()
-{
-	return _event;
-}

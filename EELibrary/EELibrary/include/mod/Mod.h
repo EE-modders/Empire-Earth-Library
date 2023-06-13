@@ -2,9 +2,9 @@
 
 #include "pch.h"
 #include "EELibraryExports.h"
-#include "events/EventManager.h"
 #include "mod/Version.h"
 #include "Memory.h"
+#include <events/ProgramLoadedEvent.h>
 
 namespace eelib
 {
@@ -29,7 +29,6 @@ namespace eelib
 			const Version& GetVersion() const;
 			bool IsRunning() const;
 			bool IsInitialized() const;
-			eelib::events::EventManager& GetEvent();
 			eelib::memory::Memory& GetMemory();
 
 			typedef int (*fnGetLibraryVersion)(void);
@@ -72,11 +71,7 @@ namespace eelib
 
 			// --- Events ---
 		public:
-			
-			struct OnGameStart
-			{
-			};
-			virtual void OnGameStart() {}
+			eelib::events::EventHandler OnProgramLoaded;
 			
 
 		protected:
@@ -93,7 +88,6 @@ namespace eelib
 			bool _running = false;
 			bool _initialized = false;
 			Version _version;
-			eelib::events::EventManager _event;
 		};
 	}
 }
