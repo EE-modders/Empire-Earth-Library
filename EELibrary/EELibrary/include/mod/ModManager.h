@@ -40,6 +40,7 @@ namespace eelib
 
 		private:
 			ModManagerPimpl* _modManagerPimpl;
+			eelib::events::ProgramLoadedEvent globalShit = eelib::events::ProgramLoadedEvent(20100, "WOW");
 		};
 
 	}

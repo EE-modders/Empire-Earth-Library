@@ -14,12 +14,13 @@ MOD_NAME::~MOD_NAME(void)
 class EventListenerExample : public eelib::events::EventListener<eelib::events::ProgramLoadedEvent>
 {
 public:
-	virtual void onScoppedEvent(eelib::events::ProgramLoadedEvent& event) override
+	virtual void onScoppedEvent(eelib::events::ProgramLoadedEvent& programLoadedEvent) override
 	{
-		std::cout << "Program loaded: " << event.GetProgramName() << " (" << event.GetProgramPath() << ")" << std::endl;
-		event.SetProgramName("TEST");
-		event.SetProgramPath("DUMMY");
-		std::cout << "Program loaded: " << event.GetProgramName() << " (" << event.GetProgramPath() << ")" << std::endl;
+		std::cout << "Program loaded: " << programLoadedEvent.getNumber() << " | " << programLoadedEvent.getString() << std::endl;
+		programLoadedEvent.setNumber(42);
+		programLoadedEvent.setString("Hello World!");
+		//programLoadedEvent.SetProgramPath("DUMMY");
+		//std::cout << "Program loaded: " << programLoadedEvent.GetProgramName() << " (" << programLoadedEvent.GetProgramPath() << ")" << std::endl;
 	}
 };
 

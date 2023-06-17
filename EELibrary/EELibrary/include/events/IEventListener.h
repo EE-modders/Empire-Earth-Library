@@ -16,17 +16,14 @@ namespace eelib {
 		template<typename TEvent>
 		class EventListener : public IEventListener
 		{
-			static_assert(std::is_base_of<Event, TEvent>::value, "TEvent should be a derived class of Event");
 
 		public:
 			virtual void onScoppedEvent(TEvent& event) = 0;
 
 			void onEvent(Event& event) override
 			{
-				TEvent* castedEvent = dynamic_cast<TEvent*>(&event);
 				static_assert(std::is_base_of<Event, TEvent>::value, "TEvent should be a derived class of Event");
-
-				onScoppedEvent(*castedEvent);
+				onScoppedEvent(static_cast<TEvent&>(event));
 			}
 		};
 

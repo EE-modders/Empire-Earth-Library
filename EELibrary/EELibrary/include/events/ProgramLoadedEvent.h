@@ -10,20 +10,32 @@ namespace eelib {
 		{
 			// Args
 			public:
-				ProgramLoadedEvent(const char* programName, const char* programPath) : Event(), _programName(programName), _programPath(programPath) {}
+				ProgramLoadedEvent(const int number, const char* string) : Event(), _number(number), _string(const_cast<char*>(string)) {}
 				virtual ~ProgramLoadedEvent() {}
 
-				// Getters
-				const char* GetProgramName() const { return _programName; }
-				const char* GetProgramPath() const { return _programPath; }
+				int getNumber() const
+				{
+					return _number;
+				}
 
-				// Setters
-				void SetProgramName(const char* programName) { _programName = programName; }
-				void SetProgramPath(const char* programPath) { _programPath = programPath; }
+				char* getString() const
+				{
+					return _string;
+				}
+
+				void setNumber(const int number)
+				{
+					_number = number;
+				}
+
+				void setString(const char* string)
+				{
+					_string = const_cast<char*>(string);
+				}
 
 				private:
-					const char* _programName;
-					const char* _programPath;
+					int _number;
+					char* _string;
 		};
 	}
 }

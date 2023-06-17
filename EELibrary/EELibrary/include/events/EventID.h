@@ -23,13 +23,6 @@ namespace eelib {
 			static EventID m_nextEventId;
 		};
 
-	}
-}
-
-namespace eelib {
-	namespace events
-	{
-
 		template <typename TEventBase>
 		EventID EventIDGenerator<TEventBase>::m_nextEventId = 0;
 
