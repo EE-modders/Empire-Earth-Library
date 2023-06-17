@@ -23,5 +23,26 @@ namespace eelib {
 
 			friend class EventHandler;
 		};
+
+		class EELIBRARY_API CancelableEvent : public Event
+		{
+		public:
+			virtual ~CancelableEvent() = default;
+			
+		public:
+			bool isCanceled() const
+			{
+				return _isCanceled;
+			}
+
+			void setCanceled(bool canceled)
+			{
+				_isCanceled = canceled;
+			}
+			
+		private:
+			bool _isCanceled = false;
+		};
+		
 	}
 }

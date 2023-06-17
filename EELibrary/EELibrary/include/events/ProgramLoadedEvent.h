@@ -6,11 +6,11 @@
 namespace eelib {
 	namespace events
 	{
-		class EELIBRARY_API ProgramLoadedEvent : public Event
+		class EELIBRARY_API ProgramLoadedEvent : public CancelableEvent
 		{
 			// Args
 			public:
-				ProgramLoadedEvent(const int number, const char* string) : Event(), _number(number), _string(const_cast<char*>(string)) {}
+				ProgramLoadedEvent(const int number, const char* string) : CancelableEvent(), _number(number), _string(const_cast<char*>(string)) {}
 				virtual ~ProgramLoadedEvent() {}
 
 				int getNumber() const

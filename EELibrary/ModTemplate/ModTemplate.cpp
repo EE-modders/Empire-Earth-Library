@@ -16,11 +16,11 @@ class EventListenerExample : public eelib::events::EventListener<eelib::events::
 public:
 	virtual void onScoppedEvent(eelib::events::ProgramLoadedEvent& programLoadedEvent) override
 	{
-		std::cout << "Program loaded: " << programLoadedEvent.getNumber() << " | " << programLoadedEvent.getString() << std::endl;
+		std::cout << "Program loaded: " << programLoadedEvent.getNumber() << " | " << programLoadedEvent.getString() << " | " << programLoadedEvent.isCanceled() << std::endl;
 		programLoadedEvent.setNumber(42);
 		programLoadedEvent.setString("Hello World!");
-		//programLoadedEvent.SetProgramPath("DUMMY");
-		//std::cout << "Program loaded: " << programLoadedEvent.GetProgramName() << " (" << programLoadedEvent.GetProgramPath() << ")" << std::endl;
+		programLoadedEvent.setCanceled(true);
+		std::cout << "Program loaded: " << programLoadedEvent.getNumber() << " | " << programLoadedEvent.getString() << " | " << programLoadedEvent.isCanceled() << std::endl;
 	}
 };
 
