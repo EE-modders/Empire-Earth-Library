@@ -10,10 +10,16 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
-#include <string>
-#include <vector>
-#include <map>
-#include <unordered_map>
 #include <filesystem>
+#include <map>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-#endif //PCH_H
+#define new new (_CLIENT_BLOCK, __FILE__, __LINE__)
+
+// Disable 4251
+#define SAFE_EXPORT_START __pragma(warning(push)) __pragma(warning(disable : 4251))
+#define SAFE_EXPORT_END __pragma(warning(pop))
+
+#endif // PCH_H

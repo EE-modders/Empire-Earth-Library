@@ -10,6 +10,9 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <PropertyGroup>
+    <XPDeprecationWarning>false</XPDeprecationWarning>
+  </PropertyGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -110,6 +113,7 @@
     <ClInclude Include="include\Logger.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\events\EventHandler.cpp" />
     <ClCompile Include="src\Logger.cpp" />
     <ClCompile Include="src\Memory.cpp" />
     <ClCompile Include="src\mod\ModManager.cpp" />

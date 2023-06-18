@@ -3,17 +3,17 @@
 #include <exception>
 #include <string>
 
-namespace eelib
-{
-    class CoreException : public std::exception
+namespace eelib {
+class CoreException : public std::exception {
+public:
+    CoreException(const char* message)
+        : _message(message)
     {
-    public:
-        CoreException(const char* message)
-            : _message(message) {}
-        virtual ~CoreException() override = default;
+    }
+    virtual ~CoreException() override = default;
 
-    private:
-		std::string _message;
-		std::string _context = "CoreException";
-    };
+private:
+    std::string _message;
+    std::string _context = "CoreException";
+};
 }

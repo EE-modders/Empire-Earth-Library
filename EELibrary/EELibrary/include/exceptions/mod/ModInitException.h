@@ -2,13 +2,13 @@
 
 #include "exceptions/ModException.h"
 
-namespace eelib::mod
-{
-    class ModInitException : public ModException
+namespace eelib::mod {
+class ModInitException : public ModException {
+public:
+    ModInitException(const char* msg)
+        : ModException(msg)
     {
-    public:
-        ModInitException(const char* msg)
-            : ModException(msg) {}
-        virtual ~ModInitException() override = default;
-    };
+    }
+    virtual ~ModInitException() override = default;
+};
 }

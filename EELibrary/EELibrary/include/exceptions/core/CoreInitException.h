@@ -2,13 +2,13 @@
 
 #include "exceptions/CoreException.h"
 
-namespace eelib
-{
-    class CoreInitException : public CoreException
+namespace eelib {
+class CoreInitException : public CoreException {
+public:
+    CoreInitException(const char* msg)
+        : CoreException(msg)
     {
-    public:
-        CoreInitException(const char* msg)
-			: CoreException(msg) {}
-        virtual ~CoreInitException() override = default;
-    };
+    }
+    virtual ~CoreInitException() override = default;
+};
 }

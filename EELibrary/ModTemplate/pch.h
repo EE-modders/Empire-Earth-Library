@@ -10,8 +10,8 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
-#endif //PCH_H
+#endif // PCH_H

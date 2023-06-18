@@ -1,10 +1,11 @@
 /*
 
-	You should not need to modify anything in this file.
+        You should not need to modify anything in this file.
 
 */
 
 #include "pch.h"
+
 #include "ModTemplate.h"
 #include <cassert>
 
@@ -15,18 +16,18 @@ extern "C" MODTEMPLATE_API int GetLibraryVersion()
     return EELIBRARY_VERSION;
 }
 
-extern "C" MODTEMPLATE_API eelib::mod::Mod * CreateMod(void)
+extern "C" MODTEMPLATE_API eelib::mod::Mod* CreateMod(void)
 {
     assert(g_ModInstance == NULL);
-	g_ModInstance = new MOD_NAME();
-	return g_ModInstance;
+    g_ModInstance = new MOD_NAME();
+    return g_ModInstance;
 }
 
 extern "C" MODTEMPLATE_API void DestroyMod()
 {
-	assert(g_ModInstance != NULL);
-	delete g_ModInstance;
-	g_ModInstance = NULL;
+    assert(g_ModInstance != NULL);
+    delete g_ModInstance;
+    g_ModInstance = NULL;
 }
 
 /*
@@ -36,13 +37,11 @@ extern "C" MODTEMPLATE_API void DestroyMod()
     care of this step and calls your OnInit, OnStart and OnStop functions.
     It is therefore extremely important not to put anything here.
 */
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule,
+    DWORD ul_reason_for_call,
+    LPVOID lpReserved)
 {
-    switch (ul_reason_for_call)
-    {
+    switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
         DisableThreadLibraryCalls(hModule);
         break;
@@ -55,4 +54,3 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     }
     return TRUE;
 }
-

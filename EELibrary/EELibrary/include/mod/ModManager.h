@@ -1,47 +1,42 @@
 #pragma once
 
-#include "pch.h"
 #include "EELibraryExports.h"
 #include "mod/Mod.h"
 #include <thread>
 
-namespace eelib
-{
-	namespace mod
-	{
-		
-		class ModManagerPimpl
-		{
-		public:
-			typedef std::map<std::string, Mod*> ModMap;
-			typedef std::map<std::string, HMODULE> LibraryMap;
-			typedef std::map<std::string, HANDLE> ThreadMap;
-			
-			ModMap m_Mods;
-			LibraryMap m_Libs;
-			ThreadMap m_Threads;
-		};
+namespace eelib {
+namespace mod {
+    class EELIBRARY_API ModManager {
+    public:
+        ModManager();
+        virtual ~ModManager();
 
-		class EELIBRARY_API ModManager
-		{
-		public:
-			ModManager();
-            virtual ~ModManager();
+    private:
+        struct Pimpl {
+        public:
+            typedef std::map<std::string, Mod*> ModMap;
+            typedef std::map<std::string, HMODULE> LibraryMap;
+            typedef std::map<std::string, HANDLE> ThreadMap;
 
-			Mod* LoadMod(const std::string& modPath);
-			void UnloadMod(Mod* plugin);
-			void UnloadAllMods();
+            ModMap m_Mods;
+            LibraryMap m_Libs;
+            ThreadMap m_Threads;
+        };
+        Pimpl* _implem;
 
-			bool IsModLoaded(const char* modPath) const;
+    public:
+        Mod* LoadMod(const std::string& modPath);
+        void UnloadMod(Mod* plugin);
+        void UnloadAllMods();
 
-			void InitMod(Mod* mod);
-			void StartMod(Mod* mod);
-			void StopMod(Mod* mod);
+        bool IsModLoaded(const char* modPath) const;
 
-		private:
-			ModManagerPimpl* _modManagerPimpl;
-			eelib::events::ProgramLoadedEvent globalShit = eelib::events::ProgramLoadedEvent(20100, "WOW");
-		};
+        void InitMod(Mod* mod);
+        void StartMod(Mod* mod);
+        void StopMod(Mod* mod);
 
-	}
+        eelib::events::ProgramLoadedEvent globalShit = eelib::events::ProgramLoadedEvent();
+    };
+
+}
 }
