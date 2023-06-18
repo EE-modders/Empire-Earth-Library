@@ -2,7 +2,8 @@
 
 #include "EELibraryExports.h"
 #include "Memory.h"
-#include "events/ProgramLoadedEvent.h"
+#include "events/program/ProgramLoadedEvent.h"
+#include "events/EventHandler.h"
 #include "mod/Version.h"
 
 namespace eelib {

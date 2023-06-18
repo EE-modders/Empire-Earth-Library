@@ -30,7 +30,7 @@
     <ClInclude Include="include\events\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\events\ProgramLoadedEvent.h">
+    <ClInclude Include="include\events\program\ProgramLoadedEvent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\mod\Mod.h">

@@ -105,7 +105,7 @@
     <ClInclude Include="include\gui_tests.h" />
     <ClInclude Include="include\pch.h" />
     <ClInclude Include="include\mod\Version.h" />
-    <ClInclude Include="include\events\ProgramLoadedEvent.h" />
+    <ClInclude Include="include\events\program\ProgramLoadedEvent.h" />
     <ClInclude Include="include\mod\Mod.h" />
     <ClInclude Include="include\mod\ModManager.h" />
     <ClInclude Include="include\Memory.h" />

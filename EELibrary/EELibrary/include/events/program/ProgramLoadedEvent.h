@@ -1,7 +1,6 @@
 #pragma once
 
 #include "events/Event.h"
-#include "events/EventHandler.h"
 
 namespace eelib {
 namespace events {

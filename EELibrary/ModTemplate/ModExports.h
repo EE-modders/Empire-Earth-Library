@@ -1,6 +1,5 @@
 #pragma once
 
-#pragma comment(lib, "../Debug/EELibrary.lib")
 #include <mod/Mod.h>
 
 #define MOD_NAME ModTemplate
